@@ -248,7 +248,9 @@ class Handler {
   #auth = (req, res) => {
     // 允许预检请求通过认证，或检查 key
     if (req.method === 'OPTIONS') return true;
-    if ((req.query.key || req.headers.authorization?.substring(7)) === SECRET_KEY) return true;
+    // [Changed] 增加对 x-goog-api-key 的支持，以兼容 Cherry Studio 等客户端
+    const clientKey = req.query.key || req.headers.authorization?.substring(7) || req.headers["x-goog-api-key"];
+    if (clientKey === SECRET_KEY) return true;
     this.#send(res, 401, "Unauthorized", true);
     return false;
   }
